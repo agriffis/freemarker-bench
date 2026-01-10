@@ -9,9 +9,9 @@
     
     <h2>Items List:</h2>
     <ul>
-    <#list items as item>
+    [#list items as item]
         <li>${item}</li>
-    </#list>
+    [/#list]
     </ul>
     
     <footer>

@@ -8,7 +8,8 @@
   (doto (Configuration. Configuration/VERSION_2_3_32)
     (.setClassLoaderForTemplateLoading (.getContextClassLoader (Thread/currentThread)) "templates")
     (.setDefaultEncoding "UTF-8")
-    (.setTemplateExceptionHandler TemplateExceptionHandler/RETHROW_HANDLER)))
+    (.setTemplateExceptionHandler TemplateExceptionHandler/RETHROW_HANDLER)
+    (.setTagSyntax Configuration/SQUARE_BRACKET_TAG_SYNTAX)))
 
 (defn render-template [config template-name data-map]
   (let [template (.getTemplate config template-name)

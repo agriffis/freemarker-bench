@@ -26,17 +26,13 @@
   (println "========================================\n")
 
   (let [my-content (slurp (io/resource "templates/my_content.ftl"))
-        data-with-interpret (doto (HashMap.)
-                              (.put "title" "Benchmark Test")
-                              (.put "user" "John Doe")
-                              (.put "items" ["Apple" "Banana" "Cherry" "Date" "Elderberry"])
-                              (.put "count" 42)
-                              (.put "myContent" my-content))
         data-without-interpret (doto (HashMap.)
                                  (.put "title" "Benchmark Test")
                                  (.put "user" "John Doe")
                                  (.put "items" ["Apple" "Banana" "Cherry" "Date" "Elderberry"])
                                  (.put "count" 42))
+        data-with-interpret (doto (.clone data-without-interpret)
+                              (.put "myContent" my-content))
         results (atom [])]
 
     ;; Test 1: Pre-created config with ?interpret

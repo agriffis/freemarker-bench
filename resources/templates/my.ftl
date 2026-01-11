@@ -1,4 +1,6 @@
-[#-- Interpret the dynamic content string from context --]
-[#if dynamicContent??]
-  ${dynamicContent?interpret}
+[#ftl /]
+
+[#if dynamicContent!?trim?has_content]
+  [#assign myTemplate = dynamicContent?interpret /]
+  [@myTemplate /]
 [/#if]

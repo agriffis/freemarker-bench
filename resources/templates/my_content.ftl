@@ -1,4 +1,3 @@
-[#-- Functions --]
 [#function multiply a b]
   [#return a * b]
 [/#function]
@@ -11,7 +10,6 @@
   [#return num?string.number]
 [/#function]
 
-[#-- Macros --]
 [#macro alert message type="info"]
   <div class="alert alert-${type}">
     <strong>Alert:</strong> ${message}

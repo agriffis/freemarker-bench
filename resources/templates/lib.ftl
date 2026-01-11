@@ -1,4 +1,5 @@
-[#-- Functions --]
+[#ftl /]
+
 [#function double num]
   [#return num * 2]
 [/#function]
@@ -11,7 +12,6 @@
   [#return a + b]
 [/#function]
 
-[#-- Macros --]
 [#macro greet name]
   <div class="greeting">Hello, ${name}!</div>
 [/#macro]

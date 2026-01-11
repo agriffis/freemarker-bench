@@ -1,0 +1,6 @@
+[tools]
+clojure = "1.12.0.1530"
+java = "oracle-graalvm-24.0.2"
+
+[tasks.bench]
+run = 'clojure -M:run'

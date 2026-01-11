@@ -21,90 +21,94 @@
     (.process template data-map writer)
     (.toString writer)))
 
+(def nano-seconds 1000000000)
+
 (defn -main [& args]
   (println "FreeMarker Template Rendering Benchmark")
   (println "========================================\n")
 
-  (let [my-content (slurp (io/resource "templates/my_content.ftl"))
-        data-without-interpret (doto (HashMap.)
-                                 (.put "title" "Benchmark Test")
-                                 (.put "user" "John Doe")
-                                 (.put "items" ["Apple" "Banana" "Cherry" "Date" "Elderberry"])
-                                 (.put "count" 42))
-        data-with-interpret (doto (.clone data-without-interpret)
-                              (.put "myContent" my-content))
-        results (atom [])]
+  (binding [criterium/*default-benchmark-opts*
+            (assoc criterium/*default-benchmark-opts* :target-execution-time 10000)]
+    (let [my-content (slurp (io/resource "templates/my_content.ftl"))
+          data-without-interpret (doto (HashMap.)
+                                   (.put "title" "Benchmark Test")
+                                   (.put "user" "John Doe")
+                                   (.put "items" ["Apple" "Banana" "Cherry" "Date" "Elderberry"])
+                                   (.put "count" 42))
+          data-with-interpret (doto (.clone data-without-interpret)
+                                (.put "myContent" my-content))
+          results (atom [])]
 
-    ;; Test 1: Pre-created config with ?interpret
-    (println "1. Pre-created config + ?interpret")
-    (println "-----------------------------------")
-    (let [config (create-config true)]
+      (println "1. New config each time + ?interpret")
+      (println "-------------------------------------")
       (println "Warming up...")
       (dotimes [_ 100]
-        (render-template config "sample.ftl" data-with-interpret))
+        (let [config (create-config true)]
+          (render-template config "sample.ftl" data-with-interpret)))
       (println "Running benchmark...")
       (let [result (criterium/benchmark
-                    (render-template config "sample.ftl" data-with-interpret)
-                    {:target-execution-time 10000000000})]
-        (swap! results conj {:config "Pre-created"
+                    (let [config (create-config true)]
+                      (render-template config "sample.ftl" data-with-interpret))
+                    {})]
+        (swap! results conj {:config "New each time"
                              :interpret "With ?interpret"
-                             :mean (first (:mean result))})))
+                             :mean (first (:mean result))}))
+      (println)
 
-    ;; Test 2: Pre-created config without ?interpret (direct import)
-    (println "\n2. Pre-created config + direct import")
-    (println "--------------------------------------")
-    (let [config (create-config false)]
+      (println "2. New config each time + direct import")
+      (println "----------------------------------------")
       (println "Warming up...")
       (dotimes [_ 100]
-        (render-template config "sample.ftl" data-without-interpret))
+        (let [config (create-config false)]
+          (render-template config "sample.ftl" data-without-interpret)))
       (println "Running benchmark...")
       (let [result (criterium/benchmark
-                    (render-template config "sample.ftl" data-without-interpret)
-                    {:target-execution-time 10000000000})]
-        (swap! results conj {:config "Pre-created"
+                    (let [config (create-config false)]
+                      (render-template config "sample.ftl" data-without-interpret))
+                    {})]
+        (swap! results conj {:config "New each time"
                              :interpret "Direct import"
-                             :mean (first (:mean result))})))
+                             :mean (first (:mean result))}))
+      (println)
 
-    ;; Test 3: New config each time with ?interpret
-    (println "\n3. New config each time + ?interpret")
-    (println "-------------------------------------")
-    (println "Warming up...")
-    (dotimes [_ 100]
+      (println "3. Pre-created config + ?interpret")
+      (println "-----------------------------------")
       (let [config (create-config true)]
-        (render-template config "sample.ftl" data-with-interpret)))
-    (println "Running benchmark...")
-    (let [result (criterium/benchmark
-                  (let [config (create-config true)]
-                    (render-template config "sample.ftl" data-with-interpret))
-                  {:target-execution-time 10000000000})]
-      (swap! results conj {:config "New each time"
-                           :interpret "With ?interpret"
-                           :mean (first (:mean result))}))
+        (println "Warming up...")
+        (dotimes [_ 100]
+          (render-template config "sample.ftl" data-with-interpret))
+        (println "Running benchmark...")
+        (let [result (criterium/benchmark
+                      (render-template config "sample.ftl" data-with-interpret)
+                      {})]
+          (swap! results conj {:config "Pre-created"
+                               :interpret "With ?interpret"
+                               :mean (first (:mean result))})))
+      (println)
 
-    ;; Test 4: New config each time without ?interpret (direct import)
-    (println "\n4. New config each time + direct import")
-    (println "----------------------------------------")
-    (println "Warming up...")
-    (dotimes [_ 100]
+      (println "4. Pre-created config + direct import")
+      (println "--------------------------------------")
       (let [config (create-config false)]
-        (render-template config "sample.ftl" data-without-interpret)))
-    (println "Running benchmark...")
-    (let [result (criterium/benchmark
-                  (let [config (create-config false)]
-                    (render-template config "sample.ftl" data-without-interpret))
-                  {:target-execution-time 10000000000})]
-      (swap! results conj {:config "New each time"
-                           :interpret "Direct import"
-                           :mean (first (:mean result))}))
+        (println "Warming up...")
+        (dotimes [_ 100]
+          (render-template config "sample.ftl" data-without-interpret))
+        (println "Running benchmark...")
+        (let [result (criterium/benchmark
+                      (render-template config "sample.ftl" data-without-interpret)
+                      {})]
+          (swap! results conj {:config "Pre-created"
+                               :interpret "Direct import"
+                               :mean (first (:mean result))})))
+      (println)
 
-    ;; Print results table
-    (println "\n\n")
-    (println "========================================")
-    (println "BENCHMARK RESULTS SUMMARY")
-    (println "========================================")
-    (println)
-    (printf "%-20s %-20s %15s%n" "Config Strategy" "Import Strategy" "Mean Time (ns)")
-    (println (apply str (repeat 60 "-")))
-    (doseq [r @results]
-      (printf "%-20s %-20s %15.2f%n" (:config r) (:interpret r) (:mean r)))
-    (println)))
+      ;; Print results table
+      (println)
+      (println "========================================")
+      (println "BENCHMARK RESULTS SUMMARY")
+      (println "========================================")
+      (println)
+      (printf "%-20s %-20s %15s%n" "Config Strategy" "Import Strategy" "Mean Time (ns)")
+      (println (apply str (repeat 60 "-")))
+      (doseq [r @results]
+        (printf "%-20s %-20s %15.2f%n" (:config r) (:interpret r) (* (:mean r) nano-seconds)))
+      (println))))

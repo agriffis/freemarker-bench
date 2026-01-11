@@ -14,6 +14,11 @@
       [@lib.greet name=user/]
     </div>
     
+    <div>
+      [@my.alert message="Dynamic content loaded!" type="success"/]
+      <p>Multiply count by 3: ${my.multiply(count, 3)}</p>
+    </div>
+    
     <footer>
         <p>Generated at: ${.now?string("yyyy-MM-dd HH:mm:ss")}</p>
     </footer>

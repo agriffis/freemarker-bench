@@ -1,5 +1,6 @@
 (ns cljmark.core
-  (:require [criterium.core :as criterium])
+  (:require [criterium.core :as criterium]
+            [clojure.java.io :as io])
   (:import [freemarker.template Configuration TemplateExceptionHandler]
            [java.io StringWriter]
            [java.util HashMap]))
@@ -10,7 +11,7 @@
     (.setDefaultEncoding "UTF-8")
     (.setTemplateExceptionHandler TemplateExceptionHandler/RETHROW_HANDLER)
     (.setTagSyntax Configuration/SQUARE_BRACKET_TAG_SYNTAX)
-    (.setAutoImports {"lib" "lib.ftl"})))
+    (.setAutoImports {"lib" "lib.ftl" "my" "my.ftl"})))
 
 (defn render-template [config template-name data-map]
   (let [template (.getTemplate config template-name)
@@ -23,11 +24,13 @@
   (println "========================================\n")
   
   (let [config (create-config)
+        dynamic-content (slurp (io/resource "templates/my_content.ftl"))
         data (doto (HashMap.)
                (.put "title" "Benchmark Test")
                (.put "user" "John Doe")
                (.put "items" ["Apple" "Banana" "Cherry" "Date" "Elderberry"])
-               (.put "count" 42))]
+               (.put "count" 42)
+               (.put "dynamicContent" dynamic-content))]
     
     (println "1. With pre-created config")
     (println "----------------------------")

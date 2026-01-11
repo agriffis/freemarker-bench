@@ -1,6 +1,6 @@
 [#ftl /]
 
-[#if dynamicContent!?trim?has_content]
-  [#assign myTemplate = dynamicContent?interpret /]
+[#if myContent!?trim?has_content]
+  [#assign myTemplate = myContent?interpret /]
   [@myTemplate /]
 [/#if]

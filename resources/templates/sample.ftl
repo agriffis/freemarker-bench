@@ -1,4 +1,3 @@
-[#import "lib.ftl" as lib]
 <!DOCTYPE html>
 <html>
 <head>

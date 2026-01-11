@@ -9,7 +9,8 @@
     (.setClassLoaderForTemplateLoading (.getContextClassLoader (Thread/currentThread)) "templates")
     (.setDefaultEncoding "UTF-8")
     (.setTemplateExceptionHandler TemplateExceptionHandler/RETHROW_HANDLER)
-    (.setTagSyntax Configuration/SQUARE_BRACKET_TAG_SYNTAX)))
+    (.setTagSyntax Configuration/SQUARE_BRACKET_TAG_SYNTAX)
+    (.setAutoImports {"lib" "lib.ftl"})))
 
 (defn render-template [config template-name data-map]
   (let [template (.getTemplate config template-name)

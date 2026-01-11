@@ -45,7 +45,7 @@
       (println "Running benchmark...")
       (let [result (criterium/benchmark
                     (render-template config "sample.ftl" data-with-interpret)
-                    {})]
+                    {:target-execution-time 10000000000})]
         (swap! results conj {:config "Pre-created"
                              :interpret "With ?interpret"
                              :mean (first (:mean result))})))
@@ -60,7 +60,7 @@
       (println "Running benchmark...")
       (let [result (criterium/benchmark
                     (render-template config "sample.ftl" data-without-interpret)
-                    {})]
+                    {:target-execution-time 10000000000})]
         (swap! results conj {:config "Pre-created"
                              :interpret "Direct import"
                              :mean (first (:mean result))})))
@@ -76,7 +76,7 @@
     (let [result (criterium/benchmark
                   (let [config (create-config true)]
                     (render-template config "sample.ftl" data-with-interpret))
-                  {})]
+                  {:target-execution-time 10000000000})]
       (swap! results conj {:config "New each time"
                            :interpret "With ?interpret"
                            :mean (first (:mean result))}))
@@ -92,7 +92,7 @@
     (let [result (criterium/benchmark
                   (let [config (create-config false)]
                     (render-template config "sample.ftl" data-without-interpret))
-                  {})]
+                  {:target-execution-time 10000000000})]
       (swap! results conj {:config "New each time"
                            :interpret "Direct import"
                            :mean (first (:mean result))}))

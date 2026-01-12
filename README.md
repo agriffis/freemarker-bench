@@ -3,7 +3,7 @@
 Run the benchmark:
 
 ```bash
-clojure -M:run
+mise bench
 ```
 
 ## Results

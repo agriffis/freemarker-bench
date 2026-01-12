@@ -1,13 +1,3 @@
-## Usage
-
-Run the benchmark:
-
-```bash
-mise bench
-```
-
-## Results
-
 ```
 ▶ mise bench
 [bench] $ clojure -M:run

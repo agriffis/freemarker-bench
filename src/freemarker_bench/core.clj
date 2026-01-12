@@ -1,4 +1,4 @@
-(ns cljmark.core
+(ns freemarker-bench.core
   (:require [criterium.core :as criterium]
             [clojure.java.io :as io])
   (:import [freemarker.template Configuration TemplateExceptionHandler]

@@ -1,6 +1,28 @@
-[#ftl /]
+[#function multiply a b]
+  [#return a * b]
+[/#function]
 
-[#if myContent!?trim?has_content]
-  [#assign myTemplate = myContent?interpret /]
-  [@myTemplate /]
-[/#if]
+[#function toUpperCase str]
+  [#return str?upper_case]
+[/#function]
+
+[#function formatNumber num]
+  [#return num?string.number]
+[/#function]
+
+[#macro alert message type="info"]
+  <div class="alert alert-${type}">
+    <strong>Alert:</strong> ${message}
+  </div>
+[/#macro]
+
+[#macro card title content]
+  <div class="card">
+    <div class="card-header">${title}</div>
+    <div class="card-body">${content}</div>
+  </div>
+[/#macro]
+
+[#macro timestamp]
+  <time>${.now?string("yyyy-MM-dd HH:mm:ss")}</time>
+[/#macro]

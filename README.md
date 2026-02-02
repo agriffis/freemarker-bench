@@ -24,6 +24,11 @@ Running benchmark...
 Warming up...
 Running benchmark...
 
+5. Pre-created config + indirect import
+----------------------------------------
+Warming up...
+Running benchmark...
+
 
 ========================================
 BENCHMARK RESULTS SUMMARY
@@ -31,8 +36,9 @@ BENCHMARK RESULTS SUMMARY
 
 Config Strategy      Import Strategy       Mean Time (ns)
 ------------------------------------------------------------
-New each time        With ?interpret            691440.90
-New each time        Direct import              510624.23
-Pre-created          With ?interpret            133823.07
-Pre-created          Direct import                8609.25
+New each time        With ?interpret            608431.52
+New each time        Direct import              485778.13
+Pre-created          With ?interpret            129890.90
+Pre-created          Direct import                8516.88
+Pre-created          Indirect import              9534.57
 ```

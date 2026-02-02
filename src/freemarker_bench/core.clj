@@ -5,15 +5,16 @@
            [java.io StringWriter]
            [java.util HashMap]))
 
-(defn create-config [use-interpret?]
+(defn create-config [import-type]
   (doto (Configuration. Configuration/VERSION_2_3_32)
     (.setClassLoaderForTemplateLoading (.getContextClassLoader (Thread/currentThread)) "templates")
     (.setDefaultEncoding "UTF-8")
     (.setTemplateExceptionHandler TemplateExceptionHandler/RETHROW_HANDLER)
     (.setTagSyntax Configuration/SQUARE_BRACKET_TAG_SYNTAX)
-    (.setAutoImports (if use-interpret?
-                       {"lib" "lib.ftl" "my" "my.ftl"}
-                       {"lib" "lib.ftl" "my" "my_content.ftl"}))))
+    (.setAutoImports (case import-type
+                       :interpret {"lib" "lib.ftl" "my" "my_interpret.ftl"}
+                       :direct {"lib" "lib.ftl" "my" "my.ftl"}
+                       :indirect {"lib" "lib.ftl" "my" "my_include.ftl"}))))
 
 (defn render-template [config template-name data-map]
   (let [template (.getTemplate config template-name)
@@ -43,11 +44,11 @@
       (println "-------------------------------------")
       (println "Warming up...")
       (dotimes [_ 100]
-        (let [config (create-config true)]
+        (let [config (create-config :interpret)]
           (render-template config "sample.ftl" data-with-interpret)))
       (println "Running benchmark...")
       (let [result (criterium/benchmark
-                    (let [config (create-config true)]
+                    (let [config (create-config :interpret)]
                       (render-template config "sample.ftl" data-with-interpret))
                     {})]
         (swap! results conj {:config "New each time"
@@ -59,11 +60,11 @@
       (println "----------------------------------------")
       (println "Warming up...")
       (dotimes [_ 100]
-        (let [config (create-config false)]
+        (let [config (create-config :direct)]
           (render-template config "sample.ftl" data-without-interpret)))
       (println "Running benchmark...")
       (let [result (criterium/benchmark
-                    (let [config (create-config false)]
+                    (let [config (create-config :direct)]
                       (render-template config "sample.ftl" data-without-interpret))
                     {})]
         (swap! results conj {:config "New each time"
@@ -73,7 +74,7 @@
 
       (println "3. Pre-created config + ?interpret")
       (println "-----------------------------------")
-      (let [config (create-config true)]
+      (let [config (create-config :interpret)]
         (println "Warming up...")
         (dotimes [_ 100]
           (render-template config "sample.ftl" data-with-interpret))
@@ -88,7 +89,7 @@
 
       (println "4. Pre-created config + direct import")
       (println "--------------------------------------")
-      (let [config (create-config false)]
+      (let [config (create-config :direct)]
         (println "Warming up...")
         (dotimes [_ 100]
           (render-template config "sample.ftl" data-without-interpret))
@@ -98,6 +99,21 @@
                       {})]
           (swap! results conj {:config "Pre-created"
                                :interpret "Direct import"
+                               :mean (first (:mean result))})))
+      (println)
+
+      (println "5. Pre-created config + indirect import")
+      (println "----------------------------------------")
+      (let [config (create-config :indirect)]
+        (println "Warming up...")
+        (dotimes [_ 100]
+          (render-template config "sample.ftl" data-without-interpret))
+        (println "Running benchmark...")
+        (let [result (criterium/benchmark
+                      (render-template config "sample.ftl" data-without-interpret)
+                      {})]
+          (swap! results conj {:config "Pre-created"
+                               :interpret "Indirect import"
                                :mean (first (:mean result))})))
       (println)
 

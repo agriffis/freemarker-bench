@@ -14,7 +14,8 @@
     (.setAutoImports (case import-type
                        :interpret {"lib" "lib.ftl" "my" "my_interpret.ftl"}
                        :direct {"lib" "lib.ftl" "my" "my.ftl"}
-                       :indirect {"lib" "lib.ftl" "my" "my_include.ftl"}))))
+                       :indirect {"lib" "lib.ftl" "my" "my_include.ftl"}
+                       :indirect-missing {"lib" "lib.ftl" "my" "my_include_missing.ftl"}))))
 
 (defn render-template [config template-name data-map]
   (let [template (.getTemplate config template-name)
@@ -114,6 +115,21 @@
                       {})]
           (swap! results conj {:config "Pre-created"
                                :interpret "Indirect import"
+                               :mean (first (:mean result))})))
+      (println)
+
+      (println "6. Pre-created config + indirect import (missing include)")
+      (println "----------------------------------------------------------")
+      (let [config (create-config :indirect-missing)]
+        (println "Warming up...")
+        (dotimes [_ 100]
+          (render-template config "sample.ftl" data-without-interpret))
+        (println "Running benchmark...")
+        (let [result (criterium/benchmark
+                      (render-template config "sample.ftl" data-without-interpret)
+                      {})]
+          (swap! results conj {:config "Pre-created"
+                               :interpret "Indirect (missing)"
                                :mean (first (:mean result))})))
       (println)
 
